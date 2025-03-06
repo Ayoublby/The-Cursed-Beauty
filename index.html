@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Cursed Beauty</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        body.dark-mode {
+            background-color: #222;
+            color: white;
+        }
+
+        header {
+            background-color: #333;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            width: 100%;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: 2px solid white;
+            color: white;
+            padding: 10px 15px;
+            font-size: 1.2em;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 2em;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-grow: 1;
+            margin: 15px 0;
+            transition: background 0.3s;
+        }
+
+        body.dark-mode .container {
+            background-color: #333;
+        }
+
+        iframe {
+            width: 100%;
+            height: 85vh; 
+            border: none;
+            transition: opacity 0.3s ease-in-out;
+            border-radius: 10px;
+        }
+
+        .view-options {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 20px;
+        }
+
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        .btn {
+            background-color: #444;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #222;
+            transform: scale(1.05);
+        }
+
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 12px;
+            font-size: 1em;
+            width: 100%;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            text-align: center;
+        }
+    
+        .footer-content p {
+            margin: 0;
+            font-size: 0.8em;
+        }
+
+        .footer-content a {
+            color: #ccc;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-content a:hover {
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5em;
+            }
+            .btn {
+                padding: 12px 20px;
+                font-size: 1.1em;
+            }
+            iframe {
+                height: 75vh;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.2em;
+            }
+            .btn {
+                padding: 10px 15px;
+                font-size: 1em;
+            }
+            iframe {
+                height: 70vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>The Cursed Beauty</h1>
+        <button class="theme-toggle" onclick="toggleDarkMode()">🌙 الوضع المظلم</button>
+    </header>
+
+    <div class="container">
+        <div class="view-options">
+            <button class="btn" onclick="showLocalPDF()">📂 عرض محلي</button>
+            <button class="btn" onclick="showGoogleDrivePDF()">☁️ عرض من Google Drive</button>
+        </div>
+
+        <iframe id="pdf-viewer" src="The Cursed Beauty.pdf"></iframe>
+
+        <div class="controls">
+            <button class="btn" onclick="nextPage()">➡️ التالي</button>
+            <button class="btn" onclick="previousPage()">⬅️ السابق</button>
+            <button class="btn" onclick="downloadPDF()">📥 تحميل الملف</button>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <p>© 2025 جميع الحقوق محفوظة | تصميم: <a href="#">Ayoubly</a> | كتابة: <a href="#">Anasly</a></p>
+        </div>
+    </footer>
+
+    <script>
+        let currentPage = 1;
+        let isGoogleDrive = false;
+        const localPDF = "The Cursed Beauty.pdf";
+        const googleDriveFileID = "13y7WcWPg3Q6XxFIgog6sOXE6kCw1PsVv";
+        const googleDriveViewer = `https://drive.google.com/file/d/${googleDriveFileID}/preview`;
+
+        function previousPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                updatePDF();
+            }
+        }
+
+        function nextPage() {
+            currentPage++;
+            updatePDF();
+        }
+
+        function updatePDF() {
+            const iframe = document.getElementById('pdf-viewer');
+            iframe.style.opacity = "0.5";
+            setTimeout(() => {
+                iframe.src = isGoogleDrive ? googleDriveViewer : `${localPDF}#page=${currentPage}`;
+                iframe.style.opacity = "1";
+            }, 300);
+        }
+
+        function downloadPDF() {
+            const link = document.createElement('a');
+            link.href = localPDF;
+            link.download = 'The Cursed Beauty.pdf';
+            link.click();
+        }
+
+        function showLocalPDF() {
+            isGoogleDrive = false;
+            currentPage = 1;
+            document.getElementById('pdf-viewer').src = localPDF;
+        }
+
+        function showGoogleDrivePDF() {
+            isGoogleDrive = true;
+            currentPage = 1;
+            document.getElementById('pdf-viewer').src = googleDriveViewer;
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle("dark-mode");
+            localStorage.setItem("darkMode", document.body.classList.contains("dark-mode"));
+        }
+
+        window.onload = function() {
+            if (localStorage.getItem("darkMode") === "true") {
+                document.body.classList.add("dark-mode");
+            }
+        };
+    </script>
+</body>
+</html>
